@@ -1,0 +1,87 @@
+let totalDinheiro = 0;
+
+class Cliente {
+    constructor(nome, localizacao) {
+        this.nome = nome;
+        this.localizacao = localizacao;
+    }
+}
+
+class Carro {
+    constructor(modelo) {
+        this.modelo = modelo;
+        this.disponivel = true;
+    }
+}
+
+class Motorista {
+    constructor(nome, carro) {
+        this.nome = nome;
+        this.carro = carro;
+    }
+}
+
+class Corrida {
+    constructor(cliente, motorista, destino, preco) {
+        this.cliente = cliente;
+        this.motorista = motorista;
+        this.destino = destino;
+        this.preco = preco;
+    }
+}
+
+const motoristas = [
+    new Motorista("Carlos", new Carro("Fusca")),
+    new Motorista("Ana", new Carro("Civic")),
+    new Motorista("João", new Carro("Onix")),
+    new Motorista("Maria", new Carro("Palio")),
+];
+
+const clientes = [
+    new Cliente("Lucas", "São Paulo"),
+    new Cliente("Julia", "Rio de Janeiro"),
+    new Cliente("Marcos", "Belo Horizonte"),
+    new Cliente("Ana", "Curitiba"),
+];
+
+// Cidades e preços base
+const cidades = {
+    "São Paulo": 10,
+    "Rio de Janeiro": 15,
+    "Belo Horizonte": 12,
+    "Curitiba": 14,
+};
+
+document.getElementById('solicitar-corrida').addEventListener('click', solicitarCorrida);
+
+function solicitarCorrida() {
+    const cliente = clientes[Math.floor(Math.random() * clientes.length)];
+    const motorista = motoristas[Math.floor(Math.random() * motoristas.length)];
+
+    if (motorista.carro.disponivel) {
+        motorista.carro.disponivel = false;
+
+        const destinos = Object.keys(cidades);
+        const destino = destinos[Math.floor(Math.random() * destinos.length)];
+        const preco = calcularPreco(cliente.localizacao, destino);
+
+        const corrida = new Corrida(cliente, motorista, destino, preco);
+        
+        document.getElementById('mensagens').innerText = `Corrida: ${cliente.nome} sendo transportado por ${motorista.nome} para ${destino}. Você ganhou R$ ${corrida.preco}!`;
+        
+        totalDinheiro += corrida.preco;
+        motorista.carro.disponivel = true; // O motorista volta a ficar disponível
+        document.getElementById('total-dinheiro').innerText = `Total ganho: R$ ${totalDinheiro}`;
+    } else {
+        document.getElementById('mensagens').innerText = `O motorista ${motorista.nome} está ocupado.`;
+    }
+}
+
+function calcularPreco(origem, destino) {
+    let precoBase = cidades[destino] || 0;
+    // Adicionando uma penalidade se o cliente estiver em uma cidade diferente
+    if (origem !== destino) {
+        precoBase += 5; // Um custo adicional por deslocamento entre cidades
+    }
+    return precoBase;
+}
